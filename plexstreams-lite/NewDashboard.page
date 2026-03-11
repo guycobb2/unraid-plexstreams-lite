@@ -1,0 +1,138 @@
+Menu="Dashboard:0"
+Icon="film"
+Tag="film"
+Cond="version_compare(parse_ini_file('/etc/unraid-version')['version'],'6.11.9','>')"
+---
+<?php
+$pluginname = "plexstreams-lite";
+
+$mytiles[$pluginname]['column1'] = <<<EOT
+<tbody id="tblPlexStreamsLite" title="_(Plex Streams)_">
+<tr>
+<td>
+<span class="tile-header">
+    <span class="tile-header-left">
+        <i class="fa fa-film f32"></i>
+        <div class="section" style="line-height:1.6rem;">
+            <b>_(Plex Streams)_</b><br>
+            <span id="psl-count">Connecting...</span>
+        </div>
+    </span>
+</span>
+</td>
+</tr>
+<tr>
+<td id="psl-streams" style="vertical-align:top; padding-top:4px; width:100%;">
+    <span class="psl-empty">Loading...</span>
+</td>
+</tr>
+</tbody>
+EOT;
+?>
+<style>
+.psl-empty     { color:#777; font-style:italic; font-size:12px; }
+.psl-stream    { margin-bottom:10px; font-size:13px; width:100%; }
+.psl-stream:last-child { margin-bottom:0; }
+.psl-title {
+    font-weight:bold;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    width:100%;
+    display:block;
+    margin-bottom:2px;
+}
+.psl-meta {
+    color:#bbb;
+    font-size:11px;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    width:100%;
+    display:block;
+    margin-bottom:4px;
+}
+.psl-paused    { color:#f0a500; }
+.psl-prog-wrap { display:flex; align-items:center; gap:8px; width:100%; }
+.psl-prog-bg   { flex:1; background:#3a3a3a; border-radius:3px; height:5px; overflow:hidden; min-width:0; }
+.psl-prog-fill { height:100%; background:#e5a00d; border-radius:3px; transition:width 1s linear; }
+.psl-prog-time { font-size:11px; color:#aaa; white-space:nowrap; min-width:80px; text-align:right; }
+.psl-divider   { border:none; border-top:1px solid #333; margin:7px 0; }
+</style>
+<script>
+(function() {
+    var POLL_MS = 15000;
+
+    function esc(s) {
+        return String(s)
+            .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+            .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    function render(streams) {
+        var countEl   = document.getElementById('psl-count');
+        var streamsEl = document.getElementById('psl-streams');
+        if (!countEl || !streamsEl) return;
+
+        var n = streams.length;
+        countEl.textContent = n + ' Active Stream' + (n !== 1 ? 's' : '');
+
+        if (n === 0) {
+            streamsEl.innerHTML = '<span class="psl-empty">No active streams</span>';
+            return;
+        }
+
+        var html = '';
+        for (var i = 0; i < n; i++) {
+            var s = streams[i];
+            if (i > 0) html += '<hr class="psl-divider">';
+
+            var stateTag = s.state === 'paused'
+                ? ' <span class="psl-paused">(Paused)</span>' : '';
+            var bwStr = s.bandwidth > 0 ? ' · ' + s.bandwidth + ' Mbps' : '';
+            var meta  = esc(s.user) + ' · ' + esc(s.device) + ' · '
+                      + esc(s.decision) + bwStr + ' · ' + esc(s.location);
+
+            html += '<div class="psl-stream">'
+                  +   '<div class="psl-title">'   + esc(s.title) + '</div>'
+                  +   '<div class="psl-meta">'    + meta + stateTag + '</div>'
+                  +   '<div class="psl-prog-wrap">'
+                  +     '<div class="psl-prog-bg">'
+                  +       '<div class="psl-prog-fill" style="width:' + s.percent + '%"></div>'
+                  +     '</div>'
+                  +     '<span class="psl-prog-time">'
+                  +       esc(s.currentTime) + ' / ' + esc(s.totalTime)
+                  +     '</span>'
+                  +   '</div>'
+                  + '</div>';
+        }
+        streamsEl.innerHTML = html;
+    }
+
+    function fetchStreams() {
+        var xhr = new XMLHttpRequest();
+        xhr.open('GET', '/plugins/plexstreams-lite/ajax.php?_t=' + Date.now(), true);
+        xhr.onload = function() {
+            if (xhr.status === 200) {
+                try {
+                    var data = JSON.parse(xhr.responseText);
+                    if (Array.isArray(data)) {
+                        render(data);
+                    } else if (data && data.error) {
+                        var el = document.getElementById('psl-count');
+                        if (el) el.textContent = 'Error: ' + data.error;
+                    }
+                } catch(e) {}
+            }
+        };
+        xhr.onerror = function() {
+            var el = document.getElementById('psl-count');
+            if (el) el.textContent = 'Connection error';
+        };
+        xhr.send();
+    }
+
+    function poll() { fetchStreams(); setTimeout(poll, POLL_MS); }
+    setTimeout(poll, 800);
+})();
+</script>

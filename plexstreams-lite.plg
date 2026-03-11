@@ -1,0 +1,42 @@
+<?xml version='1.0' standalone='yes'?>
+<!DOCTYPE PLUGIN [
+<!ENTITY name      "plexstreams-lite">
+<!ENTITY author    "guycobb2">
+<!ENTITY version   "2026.03.11">
+<!ENTITY pluginURL "https://raw.githubusercontent.com/guycobb2/unraid-plexstreams-lite/main/plexstreams-lite.plg">
+<!ENTITY pkgURL    "https://github.com/guycobb2/unraid-plexstreams-lite/releases/download/&version;">
+<!ENTITY plgPATH   "/boot/config/plugins/&name;">
+]>
+
+<PLUGIN name="&name;" author="&author;" version="&version;"
+        pluginURL="&pluginURL;"
+        min="6.11.9"
+        icon="film"
+        support="https://github.com/guycobb2/unraid-plexstreams-lite">
+
+<CHANGES>
+###2026.03.11
+- Initial release: Plex active streams dashboard widget
+- Shows title, user, device, transcode detail, bandwidth, progress bar
+- Auto-refreshes every 15 seconds
+</CHANGES>
+
+<!--
+  Install/upgrade: download txz from GitHub release, install via upgradepkg.
+  On every boot Unraid re-runs this against the locally cached txz,
+  restoring the plugin files to the RAM disk automatically.
+-->
+<FILE Name="&plgPATH;/&name;.txz" Run="upgradepkg --install-new">
+<URL>&pkgURL;/&name;.txz</URL>
+<MD5>dff7bc4fd3f66e2cccc0b9002697ee5d</MD5>
+</FILE>
+
+<FILE Run="/bin/bash" Method="remove">
+<INLINE>
+removepkg &name; 2>/dev/null
+rm -rf /usr/local/emhttp/plugins/&name;
+echo "&name; removed"
+</INLINE>
+</FILE>
+
+</PLUGIN>

@@ -42,7 +42,7 @@
 -->
 <FILE Name="&plgPATH;/&name;.txz" Run="upgradepkg --install-new">
 <URL>&pkgURL;/&name;.txz</URL>
-<MD5>c697e017b37cab17b44046434fc35764</MD5>
+<MD5>a47da33e3a50cdc49be4f8e57be2ac6a</MD5>
 </FILE>
 
 <FILE Run="/bin/bash" Method="remove">

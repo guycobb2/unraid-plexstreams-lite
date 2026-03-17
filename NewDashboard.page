@@ -12,9 +12,9 @@ $mytiles[$pluginname]['column1'] = <<<EOT
 <td>
 <span class="tile-header">
     <span class="tile-header-left">
-        <i class="fa fa-film f32"></i>
-        <div class="section" style="line-height:1.6rem;">
-            <b>_(Plex Streams)_</b><br>
+        <img src="/plugins/plexstreams-lite/images/icon-dashboard.svg" style="width:32px;height:32px;">
+        <div class="section">
+            <h3 class="tile-header-main">_(Plex Streams Lite)_</h3>
             <span id="psl-count">Connecting...</span>
         </div>
     </span>

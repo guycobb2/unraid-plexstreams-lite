@@ -12,56 +12,76 @@ $mytiles[$pluginname]['column1'] = <<<EOT
 <td>
 <span class="tile-header">
     <span class="tile-header-left">
-        <i class="fa fa-film f32"></i>
-        <div class="section" style="line-height:1.6rem;">
-            <b>_(Plex Streams)_</b><br>
+        <img src="/plugins/plexstreams-lite/images/icon-dashboard.svg" style="width:32px;height:32px;">
+        <div class="section">
+            <h3 class="tile-header-main">_(Plex Streams Lite)_</h3>
             <span id="psl-count">Connecting...</span>
         </div>
+    </span>
+    <span style="margin-left:auto; padding-right:6px; text-align:right; line-height:1.4; display:flex; flex-direction:column; align-items:flex-end; gap:0;">
+        <span id="psl-bw-total" style="display:block; font-size:13px; font-weight:bold; color:#e5a00d; white-space:nowrap;"></span>
+        <span id="psl-bw-label" style="display:block; font-size:10px; color:#888; white-space:nowrap;"></span>
+        <a href="/Settings/PlexStreams" title="Plex Streams Settings" style="display:block; margin-top:4px; font-size:12px; color:#555; text-decoration:none; line-height:1;"><i class="fa fa-cog"></i></a>
     </span>
 </span>
 </td>
 </tr>
 <tr>
-<td id="psl-streams" style="vertical-align:top; padding-top:4px; width:100%;">
-    <span class="psl-empty">Loading...</span>
+<td style="vertical-align:top; padding-top:6px; width:100%;">
+    <div id="psl-more-bar" style="display:none; text-align:right; margin-bottom:5px;">
+        <span id="psl-more-text" class="psl-more-pill"></span>
+    </div>
+    <div id="psl-streams"><span class="psl-empty">Loading...</span></div>
 </td>
 </tr>
 </tbody>
 EOT;
 ?>
 <style>
+/* ── Shared ─────────────────────────────────────────────── */
 .psl-empty     { color:#777; font-style:italic; font-size:12px; }
-.psl-stream    { margin-bottom:10px; font-size:13px; width:100%; }
-.psl-stream:last-child { margin-bottom:0; }
-.psl-title {
-    font-weight:bold;
-    white-space:nowrap;
-    overflow:hidden;
-    text-overflow:ellipsis;
-    width:100%;
-    display:block;
-    margin-bottom:2px;
-}
-.psl-meta {
-    color:#bbb;
-    font-size:11px;
-    white-space:nowrap;
-    overflow:hidden;
-    text-overflow:ellipsis;
-    width:100%;
-    display:block;
-    margin-bottom:4px;
-}
 .psl-paused    { color:#f0a500; }
-.psl-prog-wrap { display:flex; align-items:center; gap:8px; width:100%; }
-.psl-prog-bg   { flex:1; background:#3a3a3a; border-radius:3px; height:5px; overflow:hidden; min-width:0; }
-.psl-prog-fill { height:100%; background:#e5a00d; border-radius:3px; transition:width 1s linear; }
-.psl-prog-time { font-size:11px; color:#aaa; white-space:nowrap; min-width:80px; text-align:right; }
-.psl-divider   { border:none; border-top:1px solid #333; margin:7px 0; }
+.psl-prog-wrap { display:flex; align-items:center; gap:4px; }
+.psl-prog-bg   { flex:1; background:rgba(255,255,255,.2); border-radius:2px; height:2px; overflow:hidden; min-width:0; }
+.psl-prog-fill { height:100%; background:#e5a00d; border-radius:2px; transition:width 1s linear; }
+.psl-prog-time { font-size:9px; color:#aaa; white-space:nowrap; }
+.psl-more-pill { display:inline-block; background:rgba(229,160,13,.15); border:1px solid rgba(229,160,13,.45); border-radius:10px; padding:2px 10px; font-size:12px; font-weight:bold; color:#e5a00d; }
+@keyframes psl-marquee {
+    0%, 20%  { transform: translateX(0); }
+    80%, 100% { transform: translateX(var(--psl-shift, 0px)); }
+}
+/* ── Poster Art layout ──────────────────────────────────── */
+.psl-grid      { display:grid; grid-template-columns:repeat(4,1fr); gap:5px; width:100%; box-sizing:border-box; }
+.psl-stream    { position:relative; aspect-ratio:2/3; border-radius:6px; overflow:hidden; background:#181818; }
+.psl-art       { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; display:block; }
+.psl-top       { position:absolute; top:0; left:0; right:0; padding:5px 6px 28px; background:linear-gradient(to bottom,rgba(0,0,0,.88) 50%,transparent); text-align:center; z-index:1; }
+.psl-user      { font-size:14px; font-weight:bold; color:#fff; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; line-height:1.4; text-shadow:0 1px 3px rgba(0,0,0,1),0 0 10px rgba(0,0,0,.9); }
+.psl-device    { font-size:12px; color:#ddd; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; line-height:1.3; text-shadow:0 1px 3px rgba(0,0,0,1),0 0 10px rgba(0,0,0,.9); }
+.psl-bottom    { position:absolute; bottom:0; left:0; right:0; padding:24px 6px 5px; background:linear-gradient(to top,rgba(0,0,0,.92) 62%,transparent); z-index:1; }
+.psl-title     { font-weight:bold; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; font-size:10px; color:#fff; margin-bottom:1px; line-height:1.3; text-shadow:0 1px 4px rgba(0,0,0,.95); }
+.psl-subtitle  { font-size:9px; color:#ddd; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; margin-bottom:2px; line-height:1.3; text-shadow:0 1px 4px rgba(0,0,0,.95); }
+.psl-meta      { color:#aaa; font-size:9px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; margin-bottom:4px; line-height:1.3; text-shadow:0 1px 4px rgba(0,0,0,.95); }
+.psl-prog-time { text-shadow:0 1px 4px rgba(0,0,0,.95); }
+
+/* ── Simple List layout ─────────────────────────────────── */
+.psl-slist               { width:100%; }
+.psl-srow                { padding:6px 0; border-bottom:1px solid #252525; }
+.psl-srow:last-child     { border-bottom:none; }
+.psl-srow-hd             { display:flex; justify-content:space-between; align-items:baseline; gap:8px; margin-bottom:2px; }
+.psl-srow-title          { font-size:11px; font-weight:bold; color:#fff; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; flex:1; min-width:0; }
+.psl-srow-who            { font-size:10px; color:#aaa; white-space:nowrap; flex-shrink:0; }
+.psl-srow-meta           { font-size:10px; color:#666; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; margin-bottom:4px; }
+/* Must be last — overrides overflow:hidden/text-overflow:ellipsis from element classes above */
+.psl-scroll { overflow:visible; text-overflow:clip; animation: psl-marquee 5s ease-in-out infinite; }
 </style>
+<?php
+include_once('/usr/local/emhttp/plugins/plexstreams-lite/includes/config.php');
+$pslLayout = ($cfg['LAYOUT'] ?? 'poster') === 'simple' ? 'simple' : 'poster';
+?>
 <script>
 (function() {
-    var POLL_MS = 15000;
+    var POLL_MS   = 15000;
+    var PSL_LAYOUT = '<?= $pslLayout ?>';
 
     function esc(s) {
         return String(s)
@@ -69,44 +89,141 @@ EOT;
             .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
     }
 
+    function applyScroll(container, selector) {
+        setTimeout(function() {
+            var els = container.querySelectorAll(selector);
+            for (var k = 0; k < els.length; k++) {
+                var el = els[k];
+                var shift = el.scrollWidth - el.offsetWidth;
+                if (shift > 4) {
+                    el.style.setProperty('--psl-shift', '-' + shift + 'px');
+                    el.classList.add('psl-scroll');
+                } else {
+                    el.classList.remove('psl-scroll');
+                }
+            }
+        }, 100);
+    }
+
+    function renderPoster(streams, streamsEl, moreBar, moreText) {
+        var visible = Math.min(streams.length, 4);
+        var extra   = streams.length - visible;
+        if (moreBar && moreText) {
+            if (extra > 0) {
+                moreText.textContent = '+ ' + extra + ' more stream' + (extra !== 1 ? 's' : '') + ' active';
+                moreBar.style.display = 'block';
+            } else {
+                moreBar.style.display = 'none';
+            }
+        }
+
+        var html = '<div class="psl-grid">';
+        for (var i = 0; i < visible; i++) {
+            var s = streams[i];
+            var pausedTag    = s.state === 'paused' ? ' <span class="psl-paused">⏸</span>' : '';
+            var bwStr        = s.bandwidth > 0 ? ' · ' + s.bandwidth + ' Mbps' : '';
+            var artTag       = s.thumb
+                ? '<img class="psl-art" src="' + esc(s.thumb) + '" onerror="this.style.display=\'none\'">'
+                : '';
+            var subtitleHtml = s.subtitle
+                ? '<div class="psl-subtitle">' + esc(s.subtitle) + '</div>'
+                : '';
+
+            html += '<div class="psl-stream">'
+                  +   artTag
+                  +   '<div class="psl-top">'
+                  +     '<div class="psl-user">' + esc(s.user) + '</div>'
+                  +     '<div class="psl-device">' + esc(s.device) + pausedTag + '</div>'
+                  +   '</div>'
+                  +   '<div class="psl-bottom">'
+                  +     '<div class="psl-title">' + esc(s.title) + '</div>'
+                  +     subtitleHtml
+                  +     '<div class="psl-meta">' + esc(s.decision) + bwStr + ' · ' + esc(s.location) + '</div>'
+                  +     '<div class="psl-prog-wrap">'
+                  +       '<div class="psl-prog-bg">'
+                  +         '<div class="psl-prog-fill" style="width:' + s.percent + '%"></div>'
+                  +       '</div>'
+                  +       '<span class="psl-prog-time">' + esc(s.currentTime) + ' / ' + esc(s.totalTime) + '</span>'
+                  +     '</div>'
+                  +   '</div>'
+                  + '</div>';
+        }
+        html += '</div>';
+        streamsEl.innerHTML = html;
+        applyScroll(streamsEl, '.psl-user, .psl-device, .psl-title, .psl-subtitle');
+    }
+
+    function renderSimple(streams, streamsEl, moreBar) {
+        if (moreBar) moreBar.style.display = 'none';
+
+        var html = '<div class="psl-slist">';
+        for (var i = 0; i < streams.length; i++) {
+            var s       = streams[i];
+            var fullTitle = s.title + (s.subtitle ? ' · ' + s.subtitle : '');
+            var who       = esc(s.user) + ' &middot; ' + esc(s.device)
+                          + (s.state === 'paused' ? ' <span class="psl-paused">⏸</span>' : '');
+            var bwStr     = s.bandwidth > 0 ? ' · ' + s.bandwidth + ' Mbps' : '';
+
+            html += '<div class="psl-srow">'
+                  +   '<div class="psl-srow-hd">'
+                  +     '<div class="psl-srow-title">' + esc(fullTitle) + '</div>'
+                  +     '<div class="psl-srow-who">' + who + '</div>'
+                  +   '</div>'
+                  +   '<div class="psl-srow-meta">' + esc(s.decision) + bwStr + ' &middot; ' + esc(s.location) + '</div>'
+                  +   '<div class="psl-prog-wrap">'
+                  +     '<div class="psl-prog-bg">'
+                  +       '<div class="psl-prog-fill" style="width:' + s.percent + '%"></div>'
+                  +     '</div>'
+                  +     '<span class="psl-prog-time">' + esc(s.currentTime) + ' / ' + esc(s.totalTime) + '</span>'
+                  +   '</div>'
+                  + '</div>';
+        }
+        html += '</div>';
+        streamsEl.innerHTML = html;
+        applyScroll(streamsEl, '.psl-srow-title');
+    }
+
     function render(streams) {
         var countEl   = document.getElementById('psl-count');
         var streamsEl = document.getElementById('psl-streams');
+        var moreBar   = document.getElementById('psl-more-bar');
+        var moreText  = document.getElementById('psl-more-text');
         if (!countEl || !streamsEl) return;
 
         var n = streams.length;
         countEl.textContent = n + ' Active Stream' + (n !== 1 ? 's' : '');
 
+        var bwTotalEl = document.getElementById('psl-bw-total');
+        var bwLabelEl = document.getElementById('psl-bw-label');
+
         if (n === 0) {
             streamsEl.innerHTML = '<span class="psl-empty">No active streams</span>';
+            if (bwTotalEl) bwTotalEl.textContent = '';
+            if (bwLabelEl) bwLabelEl.textContent = '';
+            if (moreBar)   moreBar.style.display = 'none';
             return;
         }
 
-        var html = '';
-        for (var i = 0; i < n; i++) {
-            var s = streams[i];
-            if (i > 0) html += '<hr class="psl-divider">';
-
-            var stateTag = s.state === 'paused'
-                ? ' <span class="psl-paused">(Paused)</span>' : '';
-            var bwStr = s.bandwidth > 0 ? ' · ' + s.bandwidth + ' Mbps' : '';
-            var meta  = esc(s.user) + ' · ' + esc(s.device) + ' · '
-                      + esc(s.decision) + bwStr + ' · ' + esc(s.location);
-
-            html += '<div class="psl-stream">'
-                  +   '<div class="psl-title">'   + esc(s.title) + '</div>'
-                  +   '<div class="psl-meta">'    + meta + stateTag + '</div>'
-                  +   '<div class="psl-prog-wrap">'
-                  +     '<div class="psl-prog-bg">'
-                  +       '<div class="psl-prog-fill" style="width:' + s.percent + '%"></div>'
-                  +     '</div>'
-                  +     '<span class="psl-prog-time">'
-                  +       esc(s.currentTime) + ' / ' + esc(s.totalTime)
-                  +     '</span>'
-                  +   '</div>'
-                  + '</div>';
+        var totalBw = 0, tcCount = 0;
+        for (var j = 0; j < n; j++) {
+            totalBw += streams[j].bandwidth || 0;
+            if ((streams[j].decision || '').indexOf('Transcode') !== -1) tcCount++;
         }
-        streamsEl.innerHTML = html;
+        var dpCount = n - tcCount;
+        if (bwTotalEl) bwTotalEl.textContent = totalBw.toFixed(1) + ' Mbps';
+        if (bwLabelEl) {
+            var label = '';
+            if (tcCount === 0)      label = dpCount + ' Direct Play';
+            else if (dpCount === 0) label = tcCount + ' Transcoding';
+            else                    label = dpCount + ' Direct · ' + tcCount + ' Transcoding';
+            bwLabelEl.textContent = label;
+        }
+
+        if (PSL_LAYOUT === 'simple') {
+            renderSimple(streams, streamsEl, moreBar);
+        } else {
+            renderPoster(streams, streamsEl, moreBar, moreText);
+        }
     }
 
     function fetchStreams() {
@@ -120,7 +237,9 @@ EOT;
                         render(data);
                     } else if (data && data.error) {
                         var el = document.getElementById('psl-count');
-                        if (el) el.textContent = 'Error: ' + data.error;
+                        if (el) el.textContent = data.error === 'not_configured'
+                            ? 'Not configured — visit Settings › Plex Streams'
+                            : 'Error: ' + data.error;
                     }
                 } catch(e) {}
             }
@@ -132,7 +251,8 @@ EOT;
         xhr.send();
     }
 
-    function poll() { fetchStreams(); setTimeout(poll, POLL_MS); }
-    setTimeout(poll, 800);
+    if (window._pslInterval) clearInterval(window._pslInterval);
+    window._pslInterval = setInterval(fetchStreams, POLL_MS);
+    setTimeout(fetchStreams, 800);
 })();
 </script>

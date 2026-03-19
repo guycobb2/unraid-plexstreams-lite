@@ -2,7 +2,7 @@
 <!DOCTYPE PLUGIN [
 <!ENTITY name      "plexstreams-lite">
 <!ENTITY author    "00-TapRackBang-00">
-<!ENTITY version   "2026.03.16">
+<!ENTITY version   "2026.03.19">
 <!ENTITY pluginURL "https://raw.githubusercontent.com/00-TapRackBang-00/unraid-plexstreams-lite/main/plexstreams-lite.plg">
 <!ENTITY pkgURL    "https://github.com/00-TapRackBang-00/unraid-plexstreams-lite/releases/download/&version;">
 <!ENTITY plgPATH   "/boot/config/plugins/&name;">
@@ -16,6 +16,9 @@
         support="https://forums.unraid.net/topic/197813-plugin-plexstream-lite/">
 
 <CHANGES>
+###2026.03.19
+- Marquee scrolling enabled on all text fields (meta, user/device row in simple layout)
+
 ###2026.03.16
 - Poster Art layout: 4-column artwork card grid with gradient text overlays
 - Simple List layout: compact full-width text rows (original style)
@@ -42,7 +45,7 @@
 -->
 <FILE Name="&plgPATH;/&name;.txz" Run="upgradepkg --install-new">
 <URL>&pkgURL;/&name;.txz</URL>
-<MD5>a47da33e3a50cdc49be4f8e57be2ac6a</MD5>
+<MD5>c8cbb9a1f3da42ce0bc62109cb2036fb</MD5>
 </FILE>
 
 <FILE Run="/bin/bash" Method="remove">

@@ -150,7 +150,7 @@ $pslLayout = ($cfg['LAYOUT'] ?? 'poster') === 'simple' ? 'simple' : 'poster';
         }
         html += '</div>';
         streamsEl.innerHTML = html;
-        applyScroll(streamsEl, '.psl-user, .psl-device, .psl-title, .psl-subtitle');
+        applyScroll(streamsEl, '.psl-user, .psl-device, .psl-title, .psl-subtitle, .psl-meta');
     }
 
     function renderSimple(streams, streamsEl, moreBar) {
@@ -180,7 +180,7 @@ $pslLayout = ($cfg['LAYOUT'] ?? 'poster') === 'simple' ? 'simple' : 'poster';
         }
         html += '</div>';
         streamsEl.innerHTML = html;
-        applyScroll(streamsEl, '.psl-srow-title');
+        applyScroll(streamsEl, '.psl-srow-title, .psl-srow-who, .psl-srow-meta');
     }
 
     function render(streams) {

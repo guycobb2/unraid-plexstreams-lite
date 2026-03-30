@@ -11,6 +11,6 @@
 Displays active Plex streams on the Unraid dashboard with poster art, bandwidth, progress bars, and playback details. Shows user, device, stream decision (direct/transcode), and a live progress bar for each active session.
 </Description>
 <Date>2026-03-19</Date>
-<Support>https://forums.unraid.net/topic/191574-plugin-plex-streams-lite/</Support>
+<Support>https://forums.unraid.net/topic/197813-plugin-plexstreams-lite/</Support>
 <Icon>https://raw.githubusercontent.com/00-TapRackBang-00/unraid-plexstreams-lite/main/plexstreams-lite/images/icon-dashboard.svg</Icon>
 </Containers>

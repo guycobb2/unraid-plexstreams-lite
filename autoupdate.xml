@@ -2,7 +2,7 @@
 <Containers>
 <Plugin>True</Plugin>
 <PluginURL>https://raw.githubusercontent.com/00-TapRackBang-00/unraid-plexstreams-lite/main/plexstreams-lite.plg</PluginURL>
-<PluginAuthor>Guy Cobb</PluginAuthor>
+<PluginAuthor>00-TapRackBang-00</PluginAuthor>
 <Beta>False</Beta>
 <Category>Tools:System</Category>
 <Name>Plex Streams Lite</Name>
